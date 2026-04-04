@@ -23,6 +23,8 @@ keywords = [
     "gis",
     "land-survey",
     "blm",
+    "mcp",
+    "ai-agent",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -44,11 +46,17 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+mcp = [
+    "mcp[cli]>=1.0.0,<2.0",
+]
 dev = [
     "pytest>=7.0",
     "pytest-asyncio>=0.21",
     "respx>=0.21",
 ]
+
+[project.scripts]
+townshipamerica-mcp = "townshipamerica.mcp:main"
 
 [project.urls]
 Homepage = "https://townshipamerica.com"
