@@ -113,6 +113,55 @@ print(gdf)
 # gdf.to_file("parcel.geojson", driver="GeoJSON")
 ```
 
+## MCP Server (AI Agent Integration)
+
+Township America ships an [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server so any compatible AI agent — Claude, ChatGPT, custom agents — can convert PLSS descriptions to coordinates and back.
+
+### Install
+
+```bash
+pip install townshipamerica[mcp]
+```
+
+### Configure for Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "townshipamerica-plss": {
+      "command": "townshipamerica-mcp",
+      "env": {
+        "TOWNSHIP_AMERICA_API_KEY": "your_api_key"
+      }
+    }
+  }
+}
+```
+
+### Configure for Claude Code
+
+```bash
+claude mcp add townshipamerica-plss townshipamerica-mcp \
+  -e TOWNSHIP_AMERICA_API_KEY=your_api_key
+```
+
+### Available MCP Tools
+
+| Tool | Description |
+| ---- | ----------- |
+| `plss_to_latlon` | Convert a PLSS description (e.g. "NW 25 24N 1E 6th Meridian") to GPS coordinates |
+| `latlon_to_plss` | Convert GPS coordinates to a PLSS legal land description |
+| `batch_plss_convert` | Batch-convert up to 100 PLSS descriptions in one call |
+
+### Run Standalone
+
+```bash
+export TOWNSHIP_AMERICA_API_KEY=your_api_key
+townshipamerica-mcp
+```
+
 ## Async Support
 
 ```python
