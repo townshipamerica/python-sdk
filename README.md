@@ -167,8 +167,19 @@ Alabama, Alaska, Arizona, Arkansas, California, Colorado, Florida, Idaho, Illino
 
 MIT — see [LICENSE](LICENSE) for details.
 
+## MCP (AI agents)
+
+For Claude Desktop, Cursor, and other MCP clients, use the separate [python-mcp](https://github.com/townshipamerica/python-mcp) package:
+
+```bash
+pip install townshipamerica-mcp
+```
+
+See [python-mcp](https://github.com/townshipamerica/python-mcp) for setup and tool documentation.
+
 ## Links
 
 - [API Documentation](https://townshipamerica.com/api)
+- [MCP server (python-mcp)](https://github.com/townshipamerica/python-mcp)
 - [Get an API Key](https://townshipamerica.com/pricing)
 - [Township America](https://townshipamerica.com)
