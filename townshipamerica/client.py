@@ -87,11 +87,12 @@ class TownshipAmerica:
     # --- Search ---
 
     def search(self, location: str) -> FeatureCollection:
-        """Convert a PLSS legal land description to GPS coordinates.
+        """Convert a PLSS or Texas TXSS legal land description to GPS coordinates.
 
         Args:
-            location: A PLSS legal land description, e.g.
-                ``"NW 25 24N 1E 6th Meridian"`` or ``"NE 12 4N 5E Indian Meridian"``.
+            location: A legal land description, e.g.
+                ``"NW 25 24N 1E 6th Meridian"`` (PLSS) or
+                ``"A-175 Reeves County"`` (Texas TXSS).
 
         Returns:
             A GeoJSON FeatureCollection containing the grid boundary and centroid.
@@ -114,13 +115,13 @@ class TownshipAmerica:
         *,
         unit: Optional[str] = None,
     ) -> FeatureCollection:
-        """Find the PLSS legal land description at the given GPS coordinates.
+        """Find the legal land description at the given GPS coordinates (PLSS or TXSS).
 
         Args:
             longitude: Longitude (x) coordinate.
             latitude: Latitude (y) coordinate.
-            unit: Precision level — ``"Township"``, ``"First Division"``,
-                ``"Second Division"``, or ``"all"``.
+            unit: PLSS precision level — ``"Township"``, ``"First Division"``,
+                ``"Second Division"``, or ``"all"``. Ignored for Texas TXSS results.
 
         Returns:
             A GeoJSON FeatureCollection with the matching land description.
@@ -144,7 +145,7 @@ class TownshipAmerica:
         limit: Optional[int] = None,
         proximity: Optional[tuple[float, float]] = None,
     ) -> FeatureCollection:
-        """Get autocomplete suggestions for a partial PLSS description.
+        """Get autocomplete suggestions for a partial PLSS or Texas TXSS description.
 
         Args:
             query: Partial search query (minimum 2 characters).
@@ -170,10 +171,10 @@ class TownshipAmerica:
     def batch_search(
         self, locations: List[str]
     ) -> List[Optional[FeatureCollection]]:
-        """Convert multiple PLSS descriptions to GPS coordinates in one request.
+        """Convert multiple legal land descriptions to GPS coordinates in one request.
 
         Args:
-            locations: List of PLSS legal land descriptions (max 100).
+            locations: List of PLSS or Texas TXSS descriptions (max 100). Mix freely.
 
         Returns:
             A list of GeoJSON FeatureCollections (or None for no-match entries),
@@ -196,11 +197,11 @@ class TownshipAmerica:
         *,
         unit: Optional[str] = None,
     ) -> List[Optional[FeatureCollection]]:
-        """Find PLSS descriptions for multiple coordinate pairs in one request.
+        """Find legal land descriptions for multiple coordinate pairs in one request.
 
         Args:
             coordinates: List of ``(longitude, latitude)`` tuples (max 100).
-            unit: Precision level — ``"Township"``, ``"First Division"``,
+            unit: PLSS precision level — ``"Township"``, ``"First Division"``,
                 ``"Second Division"``, or ``"all"``.
 
         Returns:
@@ -258,7 +259,7 @@ class AsyncTownshipAmerica:
     # --- Search ---
 
     async def search(self, location: str) -> FeatureCollection:
-        """Convert a PLSS legal land description to GPS coordinates.
+        """Convert a PLSS or Texas TXSS legal land description to GPS coordinates.
 
         See :meth:`TownshipAmerica.search` for full documentation.
         """
@@ -275,7 +276,7 @@ class AsyncTownshipAmerica:
         *,
         unit: Optional[str] = None,
     ) -> FeatureCollection:
-        """Find the PLSS legal land description at the given GPS coordinates.
+        """Find the legal land description at the given GPS coordinates (PLSS or TXSS).
 
         See :meth:`TownshipAmerica.reverse` for full documentation.
         """
@@ -295,7 +296,7 @@ class AsyncTownshipAmerica:
         limit: Optional[int] = None,
         proximity: Optional[tuple[float, float]] = None,
     ) -> FeatureCollection:
-        """Get autocomplete suggestions for a partial PLSS description.
+        """Get autocomplete suggestions for a partial PLSS or Texas TXSS description.
 
         See :meth:`TownshipAmerica.autocomplete` for full documentation.
         """
@@ -315,7 +316,7 @@ class AsyncTownshipAmerica:
     async def batch_search(
         self, locations: List[str]
     ) -> List[Optional[FeatureCollection]]:
-        """Convert multiple PLSS descriptions to GPS coordinates in one request.
+        """Convert multiple legal land descriptions to GPS coordinates in one request.
 
         See :meth:`TownshipAmerica.batch_search` for full documentation.
         """
@@ -333,7 +334,7 @@ class AsyncTownshipAmerica:
         *,
         unit: Optional[str] = None,
     ) -> List[Optional[FeatureCollection]]:
-        """Find PLSS descriptions for multiple coordinate pairs in one request.
+        """Find legal land descriptions for multiple coordinate pairs in one request.
 
         See :meth:`TownshipAmerica.batch_reverse` for full documentation.
         """

@@ -1,4 +1,4 @@
-"""Township America Python SDK — PLSS coordinate conversion for 30 US states.
+"""Township America Python SDK — PLSS and Texas TXSS coordinate conversion.
 
 Usage::
 
@@ -24,6 +24,7 @@ from .models import (
     Feature,
     FeatureCollection,
     FeatureProperties,
+    MultiPolygon,
     Point,
     Polygon,
 )
@@ -43,6 +44,7 @@ __all__ = [
     "FeatureProperties",
     "Point",
     "Polygon",
+    "MultiPolygon",
 ]
 
 from importlib.metadata import version as _pkg_version

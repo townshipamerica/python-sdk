@@ -38,6 +38,15 @@ class Polygon(BaseModel):
     )
 
 
+class MultiPolygon(BaseModel):
+    """GeoJSON MultiPolygon geometry."""
+
+    type: Literal["MultiPolygon"] = "MultiPolygon"
+    coordinates: List[List[List[List[float]]]] = Field(
+        ..., description="Array of polygon coordinate arrays"
+    )
+
+
 class FeatureProperties(BaseModel):
     """Properties attached to each GeoJSON Feature returned by the API."""
 
@@ -46,16 +55,20 @@ class FeatureProperties(BaseModel):
     legal_location: Optional[str] = None
     alternate_legal_location: Optional[str] = None
     unit: Optional[str] = None
-    survey_system: Optional[str] = None
+    survey_system: Optional[Literal["PLSS", "TXSS"]] = None
     county: Optional[str] = None
-    state: Optional[str] = Field(None, description="US state name")
+    state: Optional[str] = Field(None, description="US state name or abbreviation")
+    abstract_no: Optional[str] = Field(None, description="Texas abstract number (TXSS)")
+    block_no: Optional[str] = Field(None, description="Texas block number (TXSS)")
+    survey_name: Optional[str] = Field(None, description="Texas survey name (TXSS)")
+    acreage: Optional[float] = Field(None, description="Reported acreage when available (TXSS)")
 
 
 class Feature(BaseModel):
     """GeoJSON Feature with Township America properties."""
 
     type: Literal["Feature"] = "Feature"
-    geometry: Union[Point, Polygon] = Field(
+    geometry: Union[Point, Polygon, MultiPolygon] = Field(
         ..., discriminator="type"
     )
     properties: FeatureProperties = Field(default_factory=FeatureProperties)

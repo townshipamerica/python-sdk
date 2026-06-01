@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/townshipamerica)](https://pypi.org/project/townshipamerica/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Convert US PLSS (Public Land Survey System) legal land descriptions to GPS coordinates and back. Covers all 30 PLSS states and 37 principal meridians.
+Convert US PLSS (Public Land Survey System) and Texas TXSS legal land descriptions to GPS coordinates and back. Covers all 30 PLSS states, 37 principal meridians, and all 254 Texas counties.
 
 Built on official BLM GCDB data — the same source used by government agencies.
 
@@ -29,6 +29,10 @@ result = ta.search("25 24N 1E 6th Meridian")
 centroid = result.centroid
 print(f"{centroid.geometry.latitude}, {centroid.geometry.longitude}")
 # 41.077932, -104.01924
+
+# Texas TXSS
+tx = ta.search("A-175 Reeves County")
+print(tx.centroid.properties.survey_system)  # TXSS
 ```
 
 Get an API key at [townshipamerica.com/api](https://townshipamerica.com/api).
@@ -133,8 +137,8 @@ asyncio.run(main())
 
 | Method                                               | Description                                 |
 | ---------------------------------------------------- | ------------------------------------------- |
-| `search(location)`                                   | Convert PLSS description to GPS coordinates |
-| `reverse(longitude, latitude, *, unit=None)`         | Find PLSS description at GPS coordinates    |
+| `search(location)`                                   | Convert PLSS or TXSS description to GPS     |
+| `reverse(longitude, latitude, *, unit=None)`         | Find legal description at GPS coordinates   |
 | `autocomplete(query, *, limit=None, proximity=None)` | Get search suggestions                      |
 | `batch_search(locations)`                            | Batch convert up to 100 descriptions        |
 | `batch_reverse(coordinates, *, unit=None)`           | Batch reverse geocode up to 100 points      |
@@ -145,8 +149,7 @@ All methods are also available on `AsyncTownshipAmerica` as async/await.
 
 - **`FeatureCollection`** — GeoJSON response with `.centroid` and `.grid` helpers
 - **`Feature`** — GeoJSON Feature with `.geometry` and `.properties`
-- **`Point`** — GeoJSON Point with `.latitude` and `.longitude` properties
-- **`AutocompleteResult`** — List of `.suggestions`
+- **`Point`**, **`Polygon`**, **`MultiPolygon`** — GeoJSON geometry types
 
 ### Exceptions
 
@@ -159,9 +162,11 @@ All methods are also available on `AsyncTownshipAmerica` as async/await.
 | `PayloadTooLargeError` | 413         | Batch exceeds 100 items    |
 | `ServerError`          | 5xx         | Server-side error          |
 
-## Supported States
+## Supported Coverage
 
-Alabama, Alaska, Arizona, Arkansas, California, Colorado, Florida, Idaho, Illinois, Indiana, Iowa, Kansas, Louisiana, Michigan, Minnesota, Mississippi, Missouri, Montana, Nebraska, Nevada, New Mexico, North Dakota, Ohio, Oklahoma, Oregon, South Dakota, Utah, Washington, Wisconsin, Wyoming.
+**PLSS:** Alabama, Alaska, Arizona, Arkansas, California, Colorado, Florida, Idaho, Illinois, Indiana, Iowa, Kansas, Louisiana, Michigan, Minnesota, Mississippi, Missouri, Montana, Nebraska, Nevada, New Mexico, North Dakota, Ohio, Oklahoma, Oregon, South Dakota, Utah, Washington, Wisconsin, Wyoming.
+
+**Texas TXSS:** All 254 counties — abstract, block/section, and survey descriptions.
 
 ## License
 

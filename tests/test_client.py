@@ -101,6 +101,57 @@ AUTOCOMPLETE_RESPONSE = {
 
 BASE = "https://developer.townshipamerica.com"
 
+TX_SEARCH_RESPONSE = {
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "MultiPolygon",
+                "coordinates": [
+                    [
+                        [
+                            [-103.5, 31.2],
+                            [-103.4, 31.2],
+                            [-103.4, 31.3],
+                            [-103.5, 31.3],
+                            [-103.5, 31.2],
+                        ]
+                    ]
+                ],
+            },
+            "properties": {
+                "shape": "grid",
+                "search_term": "A-175 Reeves County",
+                "legal_location": "Abstract 175 Reeves County Texas",
+                "alternate_legal_location": "A-175 Reeves Co Texas",
+                "unit": None,
+                "survey_system": "TXSS",
+                "county": "Reeves",
+                "state": "TX",
+                "abstract_no": "175",
+            },
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-103.45, 31.25],
+            },
+            "properties": {
+                "shape": "centroid",
+                "search_term": "A-175 Reeves County",
+                "legal_location": "Abstract 175 Reeves County Texas",
+                "unit": None,
+                "survey_system": "TXSS",
+                "county": "Reeves",
+                "state": "TX",
+                "abstract_no": "175",
+            },
+        },
+    ],
+}
+
 
 class TestSyncClient:
     """Tests for the synchronous TownshipAmerica client."""
@@ -119,6 +170,61 @@ class TestSyncClient:
         assert result.centroid.geometry.longitude == pytest.approx(-104.01924)
         assert result.grid is not None
         assert result.centroid.properties.state == "Colorado"
+
+    @respx.mock
+    def test_search_txss_multipolygon(self):
+        respx.get(f"{BASE}/search/legal-location").mock(
+            return_value=httpx.Response(200, json=TX_SEARCH_RESPONSE)
+        )
+        with TownshipAmerica("test-key") as ta:
+            result = ta.search("A-175 Reeves County")
+
+        assert result.centroid.properties.survey_system == "TXSS"
+        assert result.centroid.properties.state == "TX"
+        assert result.centroid.properties.abstract_no == "175"
+        assert result.grid is not None
+        assert result.grid.geometry.type == "MultiPolygon"
+
+    @respx.mock
+    def test_autocomplete_txss(self):
+        tx_autocomplete = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {"type": "Point", "coordinates": [-103.45, 31.25]},
+                    "properties": {
+                        "shape": "centroid",
+                        "search_term": "A-175",
+                        "legal_location": "Abstract 175 Reeves County Texas",
+                        "survey_system": "TXSS",
+                        "state": "TX",
+                    },
+                }
+            ],
+        }
+        respx.get(f"{BASE}/autocomplete/legal-location").mock(
+            return_value=httpx.Response(200, json=tx_autocomplete)
+        )
+        with TownshipAmerica("test-key") as ta:
+            result = ta.autocomplete("A-175", limit=3)
+
+        assert result.features[0].properties.survey_system == "TXSS"
+
+    @respx.mock
+    def test_batch_search_mixed_plss_txss(self):
+        batch_response = [SEARCH_RESPONSE, TX_SEARCH_RESPONSE, None]
+        respx.post(f"{BASE}/batch/legal-location").mock(
+            return_value=httpx.Response(200, json=batch_response)
+        )
+        with TownshipAmerica("test-key") as ta:
+            results = ta.batch_search(
+                ["NW 25 24N 1E 6th Meridian", "A-175 Reeves County", "invalid"]
+            )
+
+        assert results[0].centroid.properties.survey_system == "PLSS"
+        assert results[1].centroid.properties.survey_system == "TXSS"
+        assert results[2] is None
 
     @respx.mock
     def test_reverse(self):
