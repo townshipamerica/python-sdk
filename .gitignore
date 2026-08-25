@@ -5,3 +5,5 @@ dist/
 build/
 .pytest_cache/
 .env
+# Agent tooling state — never part of the package
+.omc/

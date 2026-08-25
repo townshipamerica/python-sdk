@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "townshipamerica"
-version = "1.0.2"
-description = "Python SDK for the Township America PLSS and Texas TXSS coordinate conversion API"
+version = "2.0.0"
+description = "Python SDK for the Township America API — PLSS and Texas TXSS coordinate conversion, plus Energy, Federal Land, and Texas parcel reports"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
