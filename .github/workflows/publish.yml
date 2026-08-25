@@ -25,6 +25,12 @@ jobs:
       - name: Install build tools
         run: pip install hatch
 
+      # A tag should never publish code the suite rejects.
+      - name: Test
+        run: |
+          pip install -e ".[dev]"
+          pytest -q
+
       - name: Build
         run: hatch build
 
