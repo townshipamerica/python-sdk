@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+- `energy_report(..., include=["renewables"])` — `renewables` is a valid
+  `include` value, and `EnergyReport.renewables` is typed by the new
+  `EnergyRenewables` model and its parts: `grid` (nearest line per kV class,
+  inferred substations), `projects` (EIA-860M plants, USPVDB footprints, USGS
+  turbines), `nrel` (2024 supply-curve cells), `lesser_prairie_chicken`,
+  `aviation`, `blm`, `obstacles`, `whooping_crane`, `interconnection_queue`.
+  Every part is `Optional`: a failed part is `None` and listed in
+  `meta.unavailable` as `renewables.<part>`. Models re-exported from
+  `townshipamerica`.
+- `EnergySummary` gains `nearest_transmission_100kv_plus_miles` and
+  `nearest_substation_230kv_plus_miles`.
+
 ## 2.0.0
 
 - New report endpoints on both clients (sync and async):

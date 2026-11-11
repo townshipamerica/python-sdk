@@ -277,7 +277,9 @@ class TownshipAmerica:
 
         Covers state-regulator wells, operators, BLM federal leases, ONRR
         county royalties, orphaned wells, pipelines, FracFocus disclosures,
-        and development constraints.
+        development constraints, and renewable siting (grid proximity,
+        generators, NREL supply curve, wildlife, aviation, BLM designations,
+        obstacles, interconnection queue).
 
         Args:
             legal_location: A PLSS legal description, e.g.
@@ -286,14 +288,15 @@ class TownshipAmerica:
                 omitted sections are never queried). Valid values:
                 ``wells``, ``operators``, ``leases``, ``royalties``,
                 ``orphaned_wells``, ``pipelines``, ``fracfocus``,
-                ``constraints``, ``geometry``. ``geometry`` attaches the
-                parcel boundary under ``parcel.geometry``.
+                ``constraints``, ``renewables``, ``geometry``. ``geometry``
+                attaches the parcel boundary under ``parcel.geometry``.
 
         Returns:
             An EnergyReport. Sections degrade independently: a failed
             section lands in ``meta.unavailable`` instead of failing the
             report. Array sections are ``{total, returned, truncated,
-            more, rows}`` envelopes.
+            more, rows}`` envelopes. Each ``renewables`` part also
+            degrades on its own (None, listed as ``renewables.<part>``).
         """
         response = self._client.get(
             "/energy/report", params=_report_params(legal_location, include)
