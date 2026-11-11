@@ -7,6 +7,7 @@ import respx
 from townshipamerica import (
     AsyncTownshipAmerica,
     AuthenticationError,
+    EnergyRenewables,
     EnergyReport,
     FeatureCollection,
     FederalLandReport,
@@ -834,6 +835,177 @@ TEXAS_WELL_RESPONSE = {
 }
 
 
+NEAREST_LINE = {
+    "volt_class": "220-287",
+    "voltage_kv": 230,
+    "owner": {"name": "EXAMPLE TRANSMISSION CO"},
+    "status": "IN SERVICE",
+    "distance_miles": 1.84,
+    "crosses_section": False,
+}
+
+SUBSTATION_230 = {
+    "name": "EXAMPLE SUB",
+    "max_voltage_kv": 230,
+    "max_volt_class": "220-287",
+    "line_count": 3,
+    "distance_miles": 3.1,
+    "inferred": True,
+}
+
+ENERGY_RENEWABLES_RESPONSE = {
+    "legal_location": "25 24N 1E 6th Meridian",
+    "resolved_legal_location": "25 24N 1E 6th Meridian",
+    "alternate_legal_location": "25 T24N R1E 6th PM",
+    "unit": "First Division",
+    "state": "Colorado",
+    "state_code": "CO",
+    "county": "Weld",
+    "parcel": {"centroid": {"lng": -104.01924, "lat": 41.077932}, "geometry": None},
+    "summary": {
+        "wells_in_section": None,
+        "wells_nearby": None,
+        "operators_nearby": None,
+        "federal_leases": None,
+        "orphaned_wells": None,
+        "pipelines_within_radius": None,
+        "fracfocus_disclosures": None,
+        "nearest_transmission_100kv_plus_miles": 1.84,
+        "nearest_substation_230kv_plus_miles": 3.1,
+    },
+    "renewables": {
+        "grid": {
+            "radius_mi": 25,
+            "transmission_by_class": [NEAREST_LINE],
+            "nearest_line_100kv_plus": NEAREST_LINE,
+            "substations": [SUBSTATION_230],
+            "nearest_substation_230kv_plus": SUBSTATION_230,
+            "nearest_substation_345kv_plus": None,
+        },
+        "projects": {
+            "radius_mi": 15,
+            "totals_mw": {
+                "solar": {"operating": 120.5, "planned": 250},
+                "wind": {"operating": 0, "planned": 0},
+            },
+            "plants": [
+                {
+                    "eia_plant_id": 65432,
+                    "name": "Example Solar",
+                    "operator": {"name": "EXAMPLE SOLAR LLC"},
+                    "inventory": "planned",
+                    "group": "solar",
+                    "technologies": ["Solar Photovoltaic", "Batteries"],
+                    "capacity_mw": 250,
+                    "capacity_mw_by_group": {"solar": 200, "storage": 50},
+                    "online_year": 2027,
+                    "status": "(V) Under construction, more than 50 percent complete",
+                    "distance_miles": 4.2,
+                }
+            ],
+            "pv_footprints": [
+                {
+                    "uspvdb_case_id": 401234,
+                    "eia_plant_id": 60001,
+                    "name": "Example PV",
+                    "capacity_ac_mw": 120.5,
+                    "online_year": 2019,
+                    "on_section": False,
+                    "distance_miles": 2.7,
+                }
+            ],
+            "wind_turbines": {
+                "within_2mi": 0,
+                "within_5mi": 4,
+                "projects_within_5mi": ["Example Wind"],
+            },
+        },
+        "nrel": [
+            {
+                "technology": "solar",
+                "sc_point_gid": 123456,
+                "resource": 5.12,
+                "resource_unit": "kWh/m2/day (GHI)",
+                "capacity_factor_pct": 27.4,
+                "lcoe_all_in_usd_per_mwh": 41.3,
+                "lcoe_site_usd_per_mwh": 33.9,
+                "lcoe_percentile": 22,
+                "capacity_ac_mw": 412,
+                "dist_spur_miles": 3.4,
+                "dist_reinforcement_miles": 12.8,
+                "cell_distance_miles": 2.05,
+            }
+        ],
+        "lesser_prairie_chicken": {
+            "in_occupied_range": False,
+            "ecoregion": None,
+            "top_category": None,
+            "categories": [],
+            "status_note": "Range-wide plan habitat (WAFWA CHAT). Not ESA critical habitat.",
+        },
+        "aviation": {
+            "military_training_routes": [
+                {
+                    "ident": "IR111",
+                    "floor": {"value_ft": 0, "reference": "SFC", "label": "Surface"},
+                    "ceiling": {"value_ft": 1500, "reference": "AGL", "label": "1,500 FT AGL"},
+                    "inside_corridor": True,
+                    "centerline_distance_miles": 0.8,
+                }
+            ],
+            "special_use_airspace": [],
+        },
+        "blm": None,
+        "obstacles": {
+            "radius_mi": 2,
+            "total": 3,
+            "at_least_200ft_agl": 1,
+            "on_section": 0,
+            "by_group": {"tower": 2, "transmission_tower": 1},
+            "tallest": {
+                "type": "TOWER",
+                "agl_ft": 310,
+                "distance_miles": 1.2,
+                "faa_study": "2019-ANM-1234-OE",
+            },
+            "nearest_met_tower_miles": None,
+        },
+        "whooping_crane": {"band_pct": None, "note": "USGS whooping crane migration corridor."},
+        "interconnection_queue": {
+            "scope": "county",
+            "county": "Weld",
+            "state_code": "CO",
+            "vintage": "2024",
+            "active_requests": 2,
+            "active_mw_by_type": {"Solar": 300, "Battery": 100},
+            "withdrawn_requests": 5,
+            "operational_requests": 1,
+            "active_projects": [
+                {
+                    "name": "Example Solar",
+                    "type": "Solar",
+                    "mw": 300,
+                    "point_of_interconnection": "Example Sub 230kV",
+                    "ia_phase": "Facility Study",
+                    "proposed_year": 2028,
+                    "developer": None,
+                    "transmission_provider": "PSCo",
+                }
+            ],
+        },
+    },
+    "meta": {
+        "unavailable": [{"section": "renewables.blm", "reason": "source_error"}],
+        "sources": {
+            "renewables": {
+                "name": "ORNL/HIFLD transmission lines, EIA-860M, NREL 2024 supply curves (CC-BY 4.0)",
+                "as_of": None,
+            }
+        },
+    },
+}
+
+
 class TestReports:
     """Tests for the Energy, Federal Land, and Texas report endpoints."""
 
@@ -863,6 +1035,67 @@ class TestReports:
             ta.energy_report("25 24N 1E 6th Meridian", include=["wells", "pipelines"])
 
         assert route.calls[0].request.url.params["include"] == "wells,pipelines"
+
+    @respx.mock
+    def test_energy_report_include_renewables(self):
+        route = respx.get(f"{BASE}/energy/report").mock(
+            return_value=httpx.Response(200, json=ENERGY_RENEWABLES_RESPONSE)
+        )
+        with TownshipAmerica("test-key") as ta:
+            ta.energy_report("25 24N 1E 6th Meridian", include=["renewables"])
+
+        assert route.calls[0].request.url.params["include"] == "renewables"
+
+    @respx.mock
+    def test_energy_report_renewables(self):
+        respx.get(f"{BASE}/energy/report").mock(
+            return_value=httpx.Response(200, json=ENERGY_RENEWABLES_RESPONSE)
+        )
+        with TownshipAmerica("test-key") as ta:
+            report = ta.energy_report("25 24N 1E 6th Meridian", include=["renewables"])
+
+        assert report.summary.nearest_transmission_100kv_plus_miles == 1.84
+        assert report.summary.nearest_substation_230kv_plus_miles == 3.1
+        r = report.renewables
+        assert isinstance(r, EnergyRenewables)
+        assert r.grid.nearest_line_100kv_plus.owner.name == "EXAMPLE TRANSMISSION CO"
+        assert r.grid.nearest_substation_230kv_plus.inferred is True
+        assert r.grid.nearest_substation_345kv_plus is None
+        assert r.projects.plants[0].capacity_mw_by_group["storage"] == 50
+        assert r.projects.totals_mw["solar"].planned == 250
+        assert r.projects.wind_turbines.projects_within_5mi == ["Example Wind"]
+        assert r.nrel[0].lcoe_percentile == 22
+        assert r.aviation.military_training_routes[0].floor.reference == "SFC"
+        assert r.obstacles.tallest.agl_ft == 310
+        assert r.obstacles.by_group["tower"] == 2
+        assert r.whooping_crane.band_pct is None
+        assert r.interconnection_queue.scope == "county"
+        assert r.interconnection_queue.active_projects[0].developer is None
+
+    @respx.mock
+    def test_energy_report_renewables_null_part(self):
+        respx.get(f"{BASE}/energy/report").mock(
+            return_value=httpx.Response(200, json=ENERGY_RENEWABLES_RESPONSE)
+        )
+        with TownshipAmerica("test-key") as ta:
+            report = ta.energy_report("25 24N 1E 6th Meridian", include=["renewables"])
+
+        assert report.renewables.blm is None
+        assert report.renewables.grid is not None
+        assert len(report.meta.unavailable) == 1
+        assert report.meta.unavailable[0].section == "renewables.blm"
+        assert report.meta.unavailable[0].reason == "source_error"
+
+    @respx.mock
+    def test_energy_report_without_renewables(self):
+        respx.get(f"{BASE}/energy/report").mock(
+            return_value=httpx.Response(200, json=ENERGY_REPORT_RESPONSE)
+        )
+        with TownshipAmerica("test-key") as ta:
+            report = ta.energy_report("25 24N 1E 6th Meridian")
+
+        assert report.renewables is None
+        assert report.summary.nearest_transmission_100kv_plus_miles is None
 
     @respx.mock
     def test_federal_land_report(self):
@@ -1033,6 +1266,18 @@ class TestAsyncReports:
             report = await ta.energy_report("25 24N 1E 6th Meridian")
         assert isinstance(report, EnergyReport)
         assert report.summary.wells_in_section == 1
+
+    @respx.mock
+    @pytest.mark.asyncio
+    async def test_energy_report_renewables(self):
+        route = respx.get(f"{BASE}/energy/report").mock(
+            return_value=httpx.Response(200, json=ENERGY_RENEWABLES_RESPONSE)
+        )
+        async with AsyncTownshipAmerica("test-key") as ta:
+            report = await ta.energy_report("25 24N 1E 6th Meridian", include=["renewables"])
+        assert route.calls[0].request.url.params["include"] == "renewables"
+        assert report.renewables.grid.nearest_line_100kv_plus.distance_miles == 1.84
+        assert report.renewables.blm is None
 
     @respx.mock
     @pytest.mark.asyncio

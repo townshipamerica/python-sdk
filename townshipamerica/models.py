@@ -316,6 +316,319 @@ class EnergyConstraints(_ReportSection):
     renewable_siting: Optional[EnergyRenewableSiting] = None
 
 
+# --- Energy API: renewables section ---
+
+
+class EnergyTransmissionLine(_ReportSection):
+    """Nearest ORNL/HIFLD transmission line of one voltage class."""
+
+    volt_class: Optional[str] = None
+    """``100-161``, ``220-287``, ``345``, ``500``, ``735 AND ABOVE``, or ``DC``."""
+    voltage_kv: Optional[float] = None
+    owner: Optional[EntityRef] = None
+    status: Optional[str] = None
+    distance_miles: Optional[float] = None
+    crosses_section: Optional[bool] = None
+    """True when the line runs through the section (distance under 1 m)."""
+
+
+class EnergyInferredSubstation(_ReportSection):
+    """A substation inferred from ORNL/HIFLD transmission-line endpoints.
+
+    No open federal substation layer exists, so every row is inferred
+    (``inferred`` is always True).
+    """
+
+    name: Optional[str] = None
+    max_voltage_kv: Optional[float] = None
+    max_volt_class: Optional[str] = None
+    line_count: Optional[int] = None
+    distance_miles: Optional[float] = None
+    inferred: bool = True
+
+
+class EnergyRenewablesGrid(_ReportSection):
+    """Grid proximity: nearest line per kV class + inferred substations."""
+
+    radius_mi: Optional[float] = None
+    transmission_by_class: List[EnergyTransmissionLine] = Field(default_factory=list)
+    """Nearest line per voltage class within ``radius_mi``, ordered by class."""
+    nearest_line_100kv_plus: Optional[EnergyTransmissionLine] = None
+    """Nearest AC line of 100 kV or more (DC lines excluded)."""
+    substations: List[EnergyInferredSubstation] = Field(default_factory=list)
+    """Up to five nearest inferred substations."""
+    nearest_substation_230kv_plus: Optional[EnergyInferredSubstation] = None
+    nearest_substation_345kv_plus: Optional[EnergyInferredSubstation] = None
+
+
+class EnergyGeneratorTotals(_ReportSection):
+    """Operating vs planned nameplate MW for one generator group."""
+
+    operating: Optional[float] = None
+    planned: Optional[float] = None
+
+
+class EnergyPlant(_ReportSection):
+    """One EIA-860M plant (operating or planned) near the section.
+
+    ``group`` (and the keys of ``capacity_mw_by_group``) is one of
+    ``solar``, ``wind``, ``storage``, ``hydro``, ``geothermal``, ``gas``,
+    ``nuclear``, ``coal``, ``other``.
+    """
+
+    eia_plant_id: Optional[int] = None
+    name: Optional[str] = None
+    operator: Optional[EntityRef] = None
+    inventory: Optional[str] = None
+    """``operating`` or ``planned``."""
+    group: Optional[str] = None
+    """The group holding the plant's largest share of capacity."""
+    technologies: List[str] = Field(default_factory=list)
+    capacity_mw: Optional[float] = None
+    capacity_mw_by_group: Dict[str, float] = Field(default_factory=dict)
+    online_year: Optional[int] = None
+    status: Optional[str] = None
+    distance_miles: Optional[float] = None
+
+
+class EnergyPvFootprint(_ReportSection):
+    """One USGS/LBNL USPVDB solar-array footprint."""
+
+    uspvdb_case_id: Optional[int] = None
+    eia_plant_id: Optional[int] = None
+    name: Optional[str] = None
+    capacity_ac_mw: Optional[float] = None
+    online_year: Optional[int] = None
+    on_section: Optional[bool] = None
+    distance_miles: Optional[float] = None
+
+
+class EnergyWindTurbines(_ReportSection):
+    """USGS wind-turbine (USWTDB) counts near the section."""
+
+    within_2mi: Optional[int] = None
+    within_5mi: Optional[int] = None
+    projects_within_5mi: List[str] = Field(default_factory=list)
+
+
+class EnergyRenewablesProjects(_ReportSection):
+    """Existing + planned generators, solar footprints, and turbines."""
+
+    radius_mi: Optional[float] = None
+    totals_mw: Dict[str, EnergyGeneratorTotals] = Field(default_factory=dict)
+    """Keyed by generator group (``solar``, ``wind``, ``storage``, ...)."""
+    plants: List[EnergyPlant] = Field(default_factory=list)
+    """Up to 40 nearest plants."""
+    pv_footprints: List[EnergyPvFootprint] = Field(default_factory=list)
+    wind_turbines: Optional[EnergyWindTurbines] = None
+
+
+class EnergyNrelCell(_ReportSection):
+    """NREL 2024 supply-curve cell nearest the section, one per technology.
+
+    Values describe the surrounding 11.5 km cell, not the section itself.
+    NREL values are licensed CC-BY 4.0.
+    """
+
+    technology: Optional[str] = None
+    """``solar`` or ``wind``."""
+    sc_point_gid: Optional[int] = None
+    resource: Optional[float] = None
+    resource_unit: Optional[str] = None
+    """``kWh/m2/day (GHI)`` for solar, ``m/s (115 m hub height)`` for wind."""
+    capacity_factor_pct: Optional[float] = None
+    lcoe_all_in_usd_per_mwh: Optional[float] = None
+    lcoe_site_usd_per_mwh: Optional[float] = None
+    lcoe_percentile: Optional[float] = None
+    """National percentile of all-in LCOE within the technology (0 = cheapest)."""
+    capacity_ac_mw: Optional[float] = None
+    dist_spur_miles: Optional[float] = None
+    dist_reinforcement_miles: Optional[float] = None
+    cell_distance_miles: Optional[float] = None
+
+
+class EnergyLpcCategory(_ReportSection):
+    """One WAFWA CHAT habitat category overlapping the section."""
+
+    chat_category: Optional[int] = None
+    label: Optional[str] = None
+    overlap_acres: Optional[float] = None
+
+
+class EnergyLesserPrairieChicken(_ReportSection):
+    """Lesser prairie-chicken range-wide plan habitat (WAFWA CHAT).
+
+    Not ESA critical habitat.
+    """
+
+    in_occupied_range: Optional[bool] = None
+    ecoregion: Optional[str] = None
+    top_category: Optional[int] = None
+    """Lowest (highest-priority) CHAT category on the section."""
+    categories: List[EnergyLpcCategory] = Field(default_factory=list)
+    status_note: Optional[str] = None
+
+
+class EnergyAltitude(_ReportSection):
+    """An airspace floor or ceiling."""
+
+    value_ft: Optional[float] = None
+    """Feet; None when the source unit is not feet."""
+    reference: Optional[str] = None
+    """``SFC``, ``AGL``, ``MSL``, or the raw source code."""
+    label: Optional[str] = None
+
+
+class EnergyMilitaryTrainingRoute(_ReportSection):
+    """One FAA military training route near the section."""
+
+    ident: Optional[str] = None
+    floor: Optional[EnergyAltitude] = None
+    ceiling: Optional[EnergyAltitude] = None
+    inside_corridor: Optional[bool] = None
+    centerline_distance_miles: Optional[float] = None
+
+
+class EnergySpecialUseAirspace(_ReportSection):
+    """One FAA special use airspace overlapping the section."""
+
+    name: Optional[str] = None
+    type_code: Optional[str] = None
+    floor: Optional[EnergyAltitude] = None
+    ceiling: Optional[EnergyAltitude] = None
+    times_of_use: Optional[str] = None
+    controlling_agency: Optional[str] = None
+
+
+class EnergyRenewablesAviation(_ReportSection):
+    """FAA military training routes + special use airspace."""
+
+    military_training_routes: List[EnergyMilitaryTrainingRoute] = Field(default_factory=list)
+    special_use_airspace: List[EnergySpecialUseAirspace] = Field(default_factory=list)
+
+
+class EnergySolarEnergyZone(_ReportSection):
+    """One BLM Solar Energy Zone the section sits in."""
+
+    name: Optional[str] = None
+    status: Optional[str] = None
+    state_office: Optional[str] = None
+
+
+class EnergySection368Corridor(_ReportSection):
+    """One BLM Section 368 energy corridor near the section."""
+
+    name: Optional[str] = None
+    status: Optional[str] = None
+    width_feet: Optional[float] = None
+    distance_miles: Optional[float] = None
+
+
+class EnergyRenewableRowCase(_ReportSection):
+    """One BLM solar/wind right-of-way case near the section."""
+
+    serial_number: Optional[str] = None
+    case_type: Optional[str] = None
+    status: Optional[str] = None
+    holder: Optional[EntityRef] = None
+    acres: Optional[float] = None
+    on_section: Optional[bool] = None
+
+
+class EnergyRenewablesBlm(_ReportSection):
+    """BLM Solar Energy Zones, Section 368 corridors, and renewable ROW cases."""
+
+    solar_energy_zones: List[EnergySolarEnergyZone] = Field(default_factory=list)
+    section_368_corridors: List[EnergySection368Corridor] = Field(default_factory=list)
+    renewable_row_cases: List[EnergyRenewableRowCase] = Field(default_factory=list)
+
+
+class EnergyTallestObstacle(_ReportSection):
+    """The tallest obstacle within the obstacle radius."""
+
+    type: Optional[str] = None
+    agl_ft: Optional[float] = None
+    distance_miles: Optional[float] = None
+    faa_study: Optional[str] = None
+
+
+class EnergyObstacles(_ReportSection):
+    """FAA Digital Obstacle File summary near the section.
+
+    ``by_group`` keys: ``wind_turbine``, ``met_tower``,
+    ``transmission_tower``, ``tower``, ``stack``, ``other``.
+    """
+
+    radius_mi: Optional[float] = None
+    total: Optional[int] = None
+    at_least_200ft_agl: Optional[int] = None
+    on_section: Optional[int] = None
+    by_group: Dict[str, int] = Field(default_factory=dict)
+    tallest: Optional[EnergyTallestObstacle] = None
+    nearest_met_tower_miles: Optional[float] = None
+    """Nearest meteorological tower within 10 miles."""
+
+
+class EnergyWhoopingCrane(_ReportSection):
+    """USGS whooping crane migration corridor."""
+
+    band_pct: Optional[float] = None
+    """Narrowest corridor band (percent) the section falls in; None when outside."""
+    note: Optional[str] = None
+
+
+class EnergyQueueProject(_ReportSection):
+    """One active LBNL Queued Up interconnection request in the county."""
+
+    name: Optional[str] = None
+    type: Optional[str] = None
+    mw: Optional[float] = None
+    point_of_interconnection: Optional[str] = None
+    ia_phase: Optional[str] = None
+    proposed_year: Optional[int] = None
+    developer: Optional[EntityRef] = None
+    transmission_provider: Optional[str] = None
+
+
+class EnergyInterconnectionQueue(_ReportSection):
+    """LBNL Queued Up interconnection queue, county-wide (never parcel-precise).
+
+    LBNL values are licensed CC-BY 4.0.
+    """
+
+    scope: Optional[str] = None
+    """Always ``county``."""
+    county: Optional[str] = None
+    state_code: Optional[str] = None
+    vintage: Optional[str] = None
+    active_requests: Optional[int] = None
+    active_mw_by_type: Dict[str, float] = Field(default_factory=dict)
+    withdrawn_requests: Optional[int] = None
+    operational_requests: Optional[int] = None
+    active_projects: List[EnergyQueueProject] = Field(default_factory=list)
+    """Up to 10 largest active requests."""
+
+
+class EnergyRenewables(_ReportSection):
+    """Renewable-siting section.
+
+    Every part degrades on its own: a failed part is None and listed in
+    ``meta.unavailable`` as ``{"section": "renewables.<part>", "reason"}``.
+    """
+
+    grid: Optional[EnergyRenewablesGrid] = None
+    projects: Optional[EnergyRenewablesProjects] = None
+    nrel: Optional[List[EnergyNrelCell]] = None
+    """Up to one cell per technology (solar, wind) within 12 km."""
+    lesser_prairie_chicken: Optional[EnergyLesserPrairieChicken] = None
+    aviation: Optional[EnergyRenewablesAviation] = None
+    blm: Optional[EnergyRenewablesBlm] = None
+    obstacles: Optional[EnergyObstacles] = None
+    whooping_crane: Optional[EnergyWhoopingCrane] = None
+    interconnection_queue: Optional[EnergyInterconnectionQueue] = None
+    """Also None when the section has no state/county to match on."""
+
+
 class EnergySummary(_ReportSection):
     """Per-section counts. A None count means that section was not fetched."""
 
@@ -326,6 +639,10 @@ class EnergySummary(_ReportSection):
     orphaned_wells: Optional[int] = None
     pipelines_within_radius: Optional[int] = None
     fracfocus_disclosures: Optional[int] = None
+    nearest_transmission_100kv_plus_miles: Optional[float] = None
+    """From ``renewables.grid``; None when not fetched or nothing within range."""
+    nearest_substation_230kv_plus_miles: Optional[float] = None
+    """From ``renewables.grid``; None when not fetched or nothing within range."""
 
 
 class EnergyWellsNearby(SectionEnvelope[EnergyWellRow]):
@@ -387,6 +704,7 @@ class EnergyReport(_ReportSection):
     pipelines: Optional[EnergyPipelinesSection] = None
     fracfocus: Optional[FracFocusSection] = None
     constraints: Optional[EnergyConstraints] = None
+    renewables: Optional[EnergyRenewables] = None
     meta: Optional[ReportMeta] = None
 
 

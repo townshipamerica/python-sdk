@@ -135,6 +135,14 @@ print(energy.wells.in_section.rows[0].api_number)
 # Only the sections you need — the rest are never queried
 slim = ta.energy_report("25 24N 1E 6th Meridian", include=["wells", "pipelines"])
 
+# Renewable siting: grid proximity, generators, NREL supply curve, wildlife,
+# aviation, BLM designations, obstacles, county interconnection queue
+siting = ta.energy_report("25 24N 1E 6th Meridian", include=["renewables"])
+print(siting.summary.nearest_transmission_100kv_plus_miles)
+grid = siting.renewables.grid
+if grid and grid.nearest_substation_230kv_plus:
+    print(grid.nearest_substation_230kv_plus.distance_miles)  # inferred substation
+
 # Federal-land report — surface management, BLM leases/ROWs, flood zones,
 # mining claims, wetlands, soils, crop history, wildfire risk, elevation...
 federal = ta.federal_land_report("NW 25 24N 1E 6th Meridian")
@@ -160,6 +168,18 @@ failed section lands in `meta.unavailable` instead of failing the report.
 Pass `include=["geometry", ...]` to attach the parcel boundary under
 `parcel.geometry`. Texas volumes are allocated estimates — RRC reports
 production by lease, never by well.
+
+The energy report's `renewables` section has nine parts — `grid`,
+`projects`, `nrel`, `lesser_prairie_chicken`, `aviation`, `blm`,
+`obstacles`, `whooping_crane`, `interconnection_queue` — and any of them may
+be `None`: a failed part is listed in `meta.unavailable` as
+`{"section": "renewables.<part>", "reason": ...}`. Substations are
+**inferred** from ORNL/HIFLD transmission-line endpoints (no open federal
+substation layer exists; every row has `inferred=True`). NREL supply-curve
+values describe the surrounding 11.5 km cell, not the section itself. NREL
+(`nrel`) and LBNL Queued Up (`interconnection_queue`) values are licensed
+CC-BY 4.0; attribute them when you redistribute. The interconnection queue is
+county-level.
 
 ## Async Support
 
