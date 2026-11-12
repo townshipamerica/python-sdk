@@ -115,7 +115,7 @@ class TownshipAmerica:
         self._base_url = base_url.rstrip("/")
         self._client = httpx.Client(
             base_url=self._base_url,
-            headers={"X-API-Key": api_key, "User-Agent": "townshipamerica-python/2.0.0"},
+            headers={"X-API-Key": api_key, "User-Agent": "townshipamerica-python/2.1.0"},
             timeout=timeout,
         )
 
@@ -460,7 +460,7 @@ class AsyncTownshipAmerica:
         self._base_url = base_url.rstrip("/")
         self._client = httpx.AsyncClient(
             base_url=self._base_url,
-            headers={"X-API-Key": api_key, "User-Agent": "townshipamerica-python/2.0.0"},
+            headers={"X-API-Key": api_key, "User-Agent": "townshipamerica-python/2.1.0"},
             timeout=timeout,
         )
 
