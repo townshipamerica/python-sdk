@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.1.0
 
 - `energy_report(..., include=["renewables"])` — `renewables` is a valid
   `include` value, and `EnergyReport.renewables` is typed by the new
